@@ -1,43 +1,26 @@
 #include "Actuator.h"
 
-Actuator::Actuator()
-{
-  type_ = ACTUATOR_TYPE_UNKNOWN;
-  config_ = {};
-}
-
-Actuator::Actuator(actuator_types type)
-{
-  type_ = type;
-  config_ = {};
-}
-
-Actuator::Actuator(actuator_types type, actuator_config conf)
-{
-  type_ = type;
-  config_ = conf;
-}
-
-Actuator::~Actuator()
+Actuator::Actuator(const ActuatorTypes type, const ActuatorConfig& conf)
+  : type_(type), config_(conf)
 {
 }
 
-void Actuator::setType(actuator_types type)
+void Actuator::setType(const ActuatorTypes type)
 {
   type_ = type;
 }
 
-void Actuator::setConfig(actuator_config conf)
+void Actuator::setConfig(const ActuatorConfig& conf)
 {
   config_ = conf;
 }
 
-actuator_types Actuator::getType() const
+const ActuatorTypes Actuator::getType() const
 {
   return type_;
 }
 
-actuator_config Actuator::getConfig() const
+const ActuatorConfig& Actuator::getConfig() const
 {
   return config_;
 };

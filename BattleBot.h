@@ -28,9 +28,9 @@ public:
 
   void init();
 
-  bool isEnabled() const;
-  bool isConnected() const;
-  bool isAlive() const;
+  const bool isEnabled() const;
+  const bool isConnected() const;
+  const bool isAlive() const;
 
   void battle();         /* main update function */
   void deathRattle();    /* just for fun, specific moves when bot dies */

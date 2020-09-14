@@ -1,10 +1,10 @@
 #include "Weapon.h"
 
-Weapon::Weapon() { }
+Weapon::Weapon(const Actuator& actuator)
+  : actuator_(actuator)
+{ }
 
-Weapon::~Weapon() { }
-
-bool Weapon::isEnabled() const
+const bool Weapon::isEnabled() const
 {
   return isEnabled_;
 }
@@ -32,12 +32,12 @@ void Weapon::resume()
   isPaused_ = false;
 }
 
-bool Weapon::isPaused() const
+const bool Weapon::isPaused() const
 {
   return isPaused_;
 }
 
-void Weapon::updateConfig(actuator_config conf)
+void Weapon::updateConfig(const ActuatorConfig& conf)
 {
   actuator_.setConfig(conf);
 };

@@ -2,28 +2,21 @@
 #include "Arduino.h"
 #include "Servo.h"
 
-Hammer::Hammer(actuator_types type, actuator_config conf)
-{
-  actuator_ = Actuator(type, conf);
-  lastHitMs_ = millis();
-  coolDownMs_ = 500;
-}
-
-Hammer::~Hammer()
-{
-}
+Hammer::Hammer(const Actuator& actuator)
+  : Weapon(actuator), lastHitMs_(millis()), coolDownMs_(Hammer::HAMMER_COOLDOWN_MS)
+{ }
 
 void Hammer::init()
 {
-  if (actuator_.type_ != ACTUATOR_TYPE_SERVO)
+  if (actuator_.getType() != ACTUATOR_TYPE_SERVO)
   {
     Serial.println("Hammer type weapons require a servo actuator!");
     return;
   }
 
-  servo_.attach(actuator_.config_.inputPin);
+  servo_.attach(actuator_.getConfig().inputPin_);
   enable();
-  servo_.write(actuator_.config_.isInverted ? actuator_.config_.max : actuator_.config_.min);
+  home();
   Serial.println("Hammer initialized!!");
 }
 
@@ -35,7 +28,7 @@ void Hammer::actuate()
     return;
   }
 
-  servo_.write(actuator_.config_.isInverted ? actuator_.config_.min : actuator_.config_.max);
+  swing();
   lastHitMs_ = millis();
 }
 
@@ -48,7 +41,7 @@ void Hammer::update()
 
   if (millis() - lastHitMs_ > coolDownMs_)
   {
-    servo_.write(actuator_.config_.isInverted ? actuator_.config_.max : actuator_.config_.min);
+    home();
   }
 }
 
@@ -59,6 +52,14 @@ void Hammer::writeValue(int val)
   servo_.write(val);
 }
 
-void Hammer::onDisable(){
-    servo_.write(actuator_.config_.isInverted ? actuator_.config_.max : actuator_.config_.min);
-};
+void Hammer::onDisable() {
+  home();
+}
+
+void Hammer::home() {
+  servo_.write(actuator_.getConfig().isInverted_ ? actuator_.getConfig().max_ : actuator_.getConfig().min_);
+}
+
+void Hammer::swing() {
+  servo_.write(actuator_.getConfig().isInverted_ ? actuator_.getConfig().min_ : actuator_.getConfig().max_);
+}

@@ -1,28 +1,28 @@
 #pragma once
 
 #include "Weapon.h"
-#include <Adafruit_MotorShield.h>
+#include "Motor.h"
 
+/**
+ * @brief Spinner Weapon Class - Not officially supported in the app as of yet, contains a DC motor
+ * that is used to spin the weapon around at high speed
+ */
 class Spinner : public Weapon
 {
 public:
-  Spinner(actuator_types type, actuator_config conf);
-  ~Spinner();
+  Spinner(const Actuator& actuator);
+  ~Spinner() = default;
 
-  /*
-  * define matching member functions for the virtual methods in Weapon
-  */
-  void init();
-  void actuate();
-  void update();
-  void writeValue(int val);
+  void init() override;
+  void actuate() override;
+  void update() override;
+  void writeValue(const int val) override;
 
 protected:
-  void onDisable(); // this is a virtual Weapon method
+  void onDisable() override;
 
 private:
-  Adafruit_DCMotor *motor_;
-  Adafruit_MotorShield shield_;
+  Motor *motor_;
   bool isOn_;
 
   void spin();

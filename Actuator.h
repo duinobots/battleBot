@@ -5,42 +5,41 @@ typedef enum
 {
   ACTUATOR_TYPE_UNKNOWN = (0),
   ACTUATOR_TYPE_DCMOTOR = (1),
-  ACTUATOR_TYPE_SERVO = (2),
-  ACTUATOR_TYPE_SOLENOID = (3)
-} actuator_types;
+  ACTUATOR_TYPE_SERVO = (2)
+} ActuatorTypes;
 
-typedef enum
+/**
+ * @brief Represents the configuration of an actuator, used to specify what pin to
+ * send control signals to as well as clamp input values appropriately
+ */
+struct ActuatorConfig
 {
-  ACTUATOR_INPUT_TYPE_BITS = (0),
-  ACTUATOR_INPUT_TYPE_VOLTAGE = (1),
-  ACTUATOR_INPUT_TYPE_DEGREES = (2),
-  ACTUATOR_INPUT_TYPE_MICROSECONDS = (3)
-} actuator_input_units;
+  ActuatorConfig(uint8_t inputPin, uint8_t min, uint8_t max, bool isInverted)
+    : inputPin_(inputPin), min_(min), max_(max), isInverted_(isInverted)
+    {
+    }
+  uint8_t inputPin_;
+  uint8_t min_;
+  uint8_t max_;
+  bool isInverted_;
+};
 
-typedef struct
-{
-  uint8_t inputPin;
-  uint8_t min;
-  uint8_t max;
-  bool isInverted;
-  // actuator_input_units unit; /* todo: not implemented anywhere yet */
-} actuator_config;
-
+/**
+ * @brief Actuator Class, represents a controllable motor or servo (type) with a given
+ * configuration
+ */
 class Actuator
 {
 public:
-  Actuator();
-  Actuator(actuator_types type);
-  Actuator(actuator_types type, actuator_config conf);
-  ~Actuator();
+  Actuator(const ActuatorTypes type, const ActuatorConfig& conf);
 
-  void setType(actuator_types type);
-  void setConfig(actuator_config conf);
+  void setType(const ActuatorTypes type);
+  void setConfig(const ActuatorConfig& conf);
 
-  actuator_types getType() const;
-  actuator_config getConfig() const;
+  const ActuatorTypes getType() const;
+  const ActuatorConfig& getConfig() const;
 
-  //private:
-  actuator_types type_;
-  actuator_config config_;
+private:
+  ActuatorTypes type_;
+  ActuatorConfig config_;
 };

@@ -5,43 +5,69 @@ typedef enum
 {
   WEAPON_TYPE_HAMMER = (1),
   WEAPON_TYPE_SPINNER = (2)
-} weapon_types;
+} WeaponTypes;
 
-// this is an abstract class
+/**
+ * @brief Base Weapon Class - Represents a hammer or spinner weapon that contains an actuator. A weapon *must*
+ * call its `update()` function in the main loop
+ */
 class Weapon
 {
 public:
-  Weapon();
-  virtual ~Weapon();
+  /**
+   * @brief Instantiate a weapon with an actuator
+   */
+  Weapon(const Actuator& actuator);
+
+  virtual ~Weapon() = default;
 
   /**
-   * these four are 'pure virtual' functions (a function that ends in zero is defined to be a pure virtual).
-   * these don't get a definition in the Weapon.cpp file. this makes the class abstract by definition. Any
-   * concrete class that inherits from Weapon must define a matching function for all virtual functions in Weapon.
+   * @brief Initialize the weapon, set up actuator comms, home
    */
   virtual void init() = 0;
+
+  /**
+   * @brief Actuate the weapon. This is the action that should be performed when a Weapon Command ('W')
+   * is received from central
+   */
   virtual void actuate() = 0;
-  virtual void update() = 0; // must be called in main loop
-  virtual void writeValue(int val) = 0; // write a specific value to the actuator. used for special move sequences
+
+  /**
+   * @brief *MUST BE CALLED IN MAIN LOOP* Used to update state of the weapon during battle
+   */
+  virtual void update() = 0;
+
+  /**
+   * @brief Write a specific value to the actuator. Used for special move sequences
+   */
+  virtual void writeValue(const int val) = 0;
 
   void enable();
   void disable();
-  bool isEnabled() const;
+  const bool isEnabled() const;
   void pause();
   void resume();
-  bool isPaused() const;
+  const bool isPaused() const;
 
-  void updateConfig(actuator_config conf);
+  void updateConfig(const ActuatorConfig& conf);
 
-// protected member properties and functions can only be accessed by sub classes of Weapon
 protected:
-  // the type of actuator used to power the weapon. for hammer weapons, this represents a servo,
-  // for spinner weapons, this represents a dc motor
+  /**
+   * @brief The actuator used to power the weapon. for hammer weapons, this represents a servo,
+   * for spinner weapons, this represents a DC motor
+   */
   Actuator actuator_;
 
-  virtual void onDisable() = 0; // callback function used to shut down weapon when disable() is called
+  /**
+   * @brief Callback function used to shut down weapon when disable() is called
+   */
+  virtual void onDisable() = 0;
 
 private:
   bool isEnabled_;
-  bool isPaused_; // a weapon that is paused does not evaluate its update() function in the main loop, used for special move sequences
+
+  /**
+   * @brief A weapon that is paused does not evaluate its update() function in the main loop, used for special move sequences
+   */
+  bool isPaused_;
 };

@@ -8,10 +8,9 @@
 class Motor_TinyCircuits : public Motor
 {
 public:
-  Motor_TinyCircuits(uint8_t addr, motor_positions pos);
-  void init(uint16_t freq);
-  void setSpeed(int speed);
-  void setFailSafe(uint16_t ms = 1000);
+  Motor_TinyCircuits(uint8_t addr, MotorPositions pos);
+  void init(uint16_t freq) override;
+  void setSpeed(int speed) override;
 
 private:
   MotorDriver motor_;

@@ -6,10 +6,9 @@
 class Motor_Adafruit : public Motor
 {
 public:
-  Motor_Adafruit(uint8_t addr, motor_positions pos);
-  void init(uint16_t freq);
-  void setSpeed(int speed);
-  void setFailSafe(uint16_t ms = 1000);
+  Motor_Adafruit(uint8_t addr, MotorPositions pos);
+  void init(const uint16_t freq) override;
+  void setSpeed(const int speed) override;
 
 private:
   Adafruit_MotorShield motorShield_;

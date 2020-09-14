@@ -1,6 +1,6 @@
 #include "Motor_Adafruit.h"
 
-Motor_Adafruit::Motor_Adafruit(uint8_t addr, motor_positions pos)
+Motor_Adafruit::Motor_Adafruit(uint8_t addr, MotorPositions pos)
 {
 //  Motor_Adafruit::
   motorShield_ = Adafruit_MotorShield();
@@ -8,14 +8,14 @@ Motor_Adafruit::Motor_Adafruit(uint8_t addr, motor_positions pos)
   pos_ = pos;
 }
 
-void Motor_Adafruit::init(uint16_t freq)
+void Motor_Adafruit::init(const uint16_t freq)
 {
   // Serial.println("initializing Motor_Adafruit");
   motorShield_.begin(freq);
 //  setFailsafe();
 }
 
-void Motor_Adafruit::setSpeed(int speed)
+void Motor_Adafruit::setSpeed(const int speed)
 {
   // Serial.print("Motor_Adafruit::setSpeed(int8_t speed), motor: ");
   // Serial.print(pos_);
@@ -24,9 +24,3 @@ void Motor_Adafruit::setSpeed(int speed)
   motor_->run(speed == 0 ? RELEASE : speed > 0 ? FORWARD : BACKWARD);
   motor_->setSpeed(abs(speed));
 }
-
-void Motor_Adafruit::setFailSafe(uint16_t ms)
-{
-  // todo
-  return;
-};

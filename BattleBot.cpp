@@ -105,17 +105,17 @@ void BattleBot::disable()
   isEnabled_ = false;
 }
 
-bool BattleBot::isEnabled() const
+const bool BattleBot::isEnabled() const
 {
   return isEnabled_;
 }
 
-bool BattleBot::isConnected() const
+const bool BattleBot::isConnected() const
 {
   return isConnected_;
 }
 
-bool BattleBot::isAlive() const
+const bool BattleBot::isAlive() const
 {
   return health_ > 0;
 }
@@ -248,10 +248,6 @@ void BattleBot::shutdown()
  */
 void BattleBot::setConfig(uint8_t *config)
 {
-  // default weapon configs - this creates a persistent instance of each weapon type scoped only to this function
-  static Hammer hammer = Hammer(ACTUATOR_TYPE_SERVO, {8, 45, 135, true});
-  static Spinner spinner = Spinner(ACTUATOR_TYPE_DCMOTOR, {3, 0, 255, false});
-
   int weaponClass, actuatorInputPin, actuatorMin, actuatorMax, actuatorIsInverted;
   bool configSet = false;
 
@@ -261,7 +257,11 @@ void BattleBot::setConfig(uint8_t *config)
   actuatorMax = config[5];
   actuatorIsInverted = config[6];
 
-  actuator_config inputConfig = {actuatorInputPin, actuatorMin, actuatorMax, actuatorIsInverted == 1 ? true : false};
+  ActuatorConfig inputConfig(actuatorInputPin, actuatorMin, actuatorMax, actuatorIsInverted == 1 ? true : false);
+
+  // default weapon configs - this creates a persistent instance of each weapon type scoped only to this function
+  static Hammer hammer = Hammer(Actuator(ActuatorTypes::ACTUATOR_TYPE_SERVO, inputConfig));
+  static Spinner spinner = Spinner(Actuator(ActuatorTypes::ACTUATOR_TYPE_DCMOTOR, inputConfig));
 
   // switching weapon class points our weapon_ pointer to the address of (&) our hammer and spinner objects
   switch (weaponClass)
@@ -269,21 +269,16 @@ void BattleBot::setConfig(uint8_t *config)
   case (WEAPON_TYPE_HAMMER):
     Serial.println("initializing hammer!");
     weapon_ = &hammer;
-    configSet = true;
+    configReceived_ = true;
     break;
   case (WEAPON_TYPE_SPINNER):
     Serial.println("initializing spinner!");
     weapon_ = &spinner;
-    configSet = true;
+    configReceived_ = true;
     break;
   default:
+    Serial.println("Got Invalid Weapon Type!");
     break;
-  }
-
-  if (configSet)
-  {
-    weapon_->updateConfig(inputConfig);
-    configReceived_ = true;
   }
 }
 
@@ -318,10 +313,6 @@ void BattleBot::onDisconnect()
 
 void BattleBot::drive(int leftSpeed, int rightSpeed)
 {
-  // Serial.print("BattleBot::drive(int leftSpeed, int rightSpeed), leftSpeed: ");
-  // Serial.print(leftSpeed);
-  // Serial.print(", rightSpeed: ");
-  // Serial.println(rightSpeed);
   leftMotor_->setSpeed(leftSpeed);
   rightMotor_->setSpeed(rightSpeed);
 }
