@@ -7,6 +7,12 @@ BLE_Adafruit::BLE_Adafruit(int8_t csPin, int8_t irqPin, int8_t rstPin)
 {
 }
 
+BLE_Adafruit::~BLE_Adafruit()
+{
+  delete bledfu, bledis, bleuart, blebas;
+}
+
+
 /**
  * Initializes BlueFruit module. returns true if init was successful,
  * returns false if not
@@ -18,6 +24,11 @@ bool BLE_Adafruit::init()
 
   Serial.println("Bluefruit52 BLEUART Example");
   Serial.println("---------------------------\n");
+
+  bledfu = new BLEDfu();
+  bledis = new BLEDis();
+  bleuart = new BLEUart();
+  blebas = new BLEBas();
 
   // Setup the BLE LED to be enabled on CONNECT
   // Note: This is actually the default behavior, but provided
@@ -36,19 +47,19 @@ bool BLE_Adafruit::init()
   Bluefruit.Periph.setDisconnectCallback(disconnectCallback);
 
   // To be consistent OTA DFU should be added first if it exists
-  bledfu.begin();
+  bledfu->begin();
 
   // Configure and Start Device Information Service
-  bledis.setManufacturer("Adafruit Industries");
-  bledis.setModel("Bluefruit Feather52");
-  bledis.begin();
+  bledis->setManufacturer("Adafruit Industries");
+  bledis->setModel("Bluefruit Feather52");
+  bledis->begin();
 
   // Configure and Start BLE Uart Service
-  bleuart.begin();
+  bleuart->begin();
 
   // Start BLE Battery Service
-  blebas.begin();
-  blebas.write(100);
+  blebas->begin();
+  blebas->write(100);
 
   // Set up and start advertising
   startAdv();
@@ -96,12 +107,12 @@ bool BLE_Adafruit::isConnected()
 
 bool BLE_Adafruit::writeUART(char *msg)
 {
-  return bleuart.write(msg);
+  return bleuart->write(msg);
 }
 
 bool BLE_Adafruit::available()
 {
-  return (bool)bleuart.available();
+  return (bool)bleuart->available();
 }
 
 void BLE_Adafruit::reset()
@@ -126,7 +137,7 @@ void BLE_Adafruit::startAdv(void)
   Bluefruit.Advertising.addTxPower();
 
   // Include bleuart 128-bit uuid
-  Bluefruit.Advertising.addService(bleuart);
+  Bluefruit.Advertising.addService(*bleuart);
 
   // Secondary Scan Response packet (optional)
   // Since there is no room for 'Name' in Advertising packet
@@ -153,7 +164,7 @@ uint8_t *BLE_Adafruit::getBuffer()
 
   while (available())
   {
-    uint8_t c = bleuart.read();
+    uint8_t c = bleuart->read();
 
     buffer_[i] = c;
     i++;

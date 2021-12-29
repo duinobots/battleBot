@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Arduino.h"
-#include <SPI.h>
+// #include "Arduino.h"
+// #include <SPI.h>
 #include "Hammer.h"
 #include "Weapon.h"
 #include "RgbLED.h"
 #include "Motor.h"
 #include "BLE.h"
-#include <Wire.h>
+// #include <Wire.h>
 
 typedef enum
 {

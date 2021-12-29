@@ -1,7 +1,7 @@
 #include "BattleBot.h"
 // #include "BLE_TinyCircuits.h"
-#include "Motor_TinyCircuits.h"
-#include "BLE_Adafruit.h"
+// #include "Motor_TinyCircuits.h"
+ #include "BLE_Adafruit.h"
 // #include "BluefruitConfig.h"
 #include "Motor_Adafruit.h"
 #include "Hammer.h"
@@ -51,17 +51,19 @@ BattleBot::~BattleBot()
  */
 void BattleBot::init()
 {
-  if (botVersion_ == TINY_CIRCUITS)
-    Wire.begin();
+  Serial.begin(115200);
+  while (!Serial) delay(10);
 
+  Serial.println("Serial init");
+//  Serial.println("entering init!");
+//  if (botVersion_ == TINY_CIRCUITS)
+//    Wire.begin();
+//
   if (!hardwareInitComplete_)
   {
+    Serial.println("hardwareInit not complete!");
     // give everything a second to set up I guess?
     delay(1000);
-
-    Serial.begin(115200);
-
-    Serial.println("Serial init");
 
     leftMotor_->init(1000);
     rightMotor_->init(1000);
@@ -73,16 +75,17 @@ void BattleBot::init()
     led_->init();
   }
 
+  Serial.println("about to initialize BLE!");
   // connect to phone
   bleInit();
 
-  // upload weapon config
-  waitForConfig();
-
-  Serial.println("Config received!");
-
-  enable();
-  weapon_->init();
+//  // upload weapon config
+//  waitForConfig();
+//
+//  Serial.println("Config received!");
+//
+//  enable();
+//  weapon_->init();
 
   Serial.println("Ready for battle!!");
 }
@@ -164,36 +167,37 @@ void BattleBot::waitForReset()
  */
 void BattleBot::bleInit()
 {
+  Serial.println("bleInit()!");
   bool wasReset = false;
 
-  if (!hardwareInitComplete_)
-  {
-    // Initialise the module
-    Serial.print("Initialising the BLE module:");
-    ble_->init();
-    Serial.print("BLE initialized");
-
-    // set flag to true after ble module is initialized
-    hardwareInitComplete_ = true;
-    wasReset = true;
-  }
-
-  if (!wasReset)
-    ble_->reset();
-
-  Serial.println("Waiting to connect..");
-
-  led_->setStatus(LED_STATUS_WAITING_FOR_CONNECT);
-
-  // Wait for connection to central
-  while (!ble_->isConnected())
-  {
-    ble_->available();
-    led_->update();
-    delay(50);
-  }
-
-  onConnect();
+//  if (!hardwareInitComplete_)
+//  {
+//    // Initialise the module
+//    Serial.print("Initialising the BLE module:");
+//    ble_->init();
+//    Serial.print("BLE initialized");
+//
+//    // set flag to true after ble module is initialized
+//    hardwareInitComplete_ = true;
+//    wasReset = true;
+//  }
+//
+//  if (!wasReset)
+//    ble_->reset();
+//
+//  Serial.println("Waiting to connect..");
+//
+//  led_->setStatus(LED_STATUS_WAITING_FOR_CONNECT);
+//
+//  // Wait for connection to central
+//  while (!ble_->isConnected())
+//  {
+//    ble_->available();
+//    led_->update();
+//    delay(50);
+//  }
+//
+//  onConnect();
 }
 
 /*

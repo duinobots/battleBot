@@ -25,7 +25,7 @@ class BLE_Adafruit : public BLE
 {
 public:
   BLE_Adafruit(int8_t csPin, int8_t irqPin, int8_t rstPin);
-  ~BLE_Adafruit() = default;
+  ~BLE_Adafruit();
 
   bool init() override;
   bool isConnected() override;
@@ -38,10 +38,10 @@ public:
 
 private:
   // Adafruit_BluefruitLE_SPI ble_;
-  BLEDfu bledfu;   // OTA DFU service
-  BLEDis bledis;   // device information
-  BLEUart bleuart; // uart over ble
-  BLEBas blebas;   // battery
+  BLEDfu* bledfu;   // OTA DFU service
+  BLEDis* bledis;   // device information
+  BLEUart* bleuart; // uart over ble
+  BLEBas* blebas;   // battery
   uint8_t buffer_[BUFFER_LENGTH];
   static bool isConnected_;
 
