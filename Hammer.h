@@ -1,5 +1,6 @@
 #pragma once
-#include "Servo.h"
+#include <Arduino.h>
+#include <Servo.h>
 #include "Weapon.h"
 
 /**

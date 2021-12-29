@@ -1,8 +1,8 @@
 #include "BattleBot.h"
-#include "BLE_TinyCircuits.h"
+// #include "BLE_TinyCircuits.h"
 #include "Motor_TinyCircuits.h"
 #include "BLE_Adafruit.h"
-#include "BluefruitConfig.h"
+// #include "BluefruitConfig.h"
 #include "Motor_Adafruit.h"
 #include "Hammer.h"
 #include "Spinner.h"
@@ -14,18 +14,18 @@
 BattleBot::BattleBot(BotVersions version)
     : botVersion_(version), health_(100), isEnabled_(false), hardwareInitComplete_(false), configReceived_(false), lastFrontHitMs_(millis()), lastBackHitMs_(millis()), lastUpdateMs_(millis())
 {
-  if (botVersion_ == TINY_CIRCUITS)
+//  if (botVersion_ == TINY_CIRCUITS)
+//  {
+//    ble_ = new BLE_TinyCircuits();
+//    leftMotor_ = new Motor_TinyCircuits(0, MOTOR_LEFT);
+//    rightMotor_ = new Motor_TinyCircuits(0, MOTOR_RIGHT);
+//    led_ = new RgbLED(4, 3, 7);
+//    frontHitSensorPin_ = 8;
+//    backHitSensorPin_ = 6;
+//  }
+  if (botVersion_ == ADAFRUIT)
   {
-    ble_ = new BLE_TinyCircuits();
-    leftMotor_ = new Motor_TinyCircuits(0, MOTOR_LEFT);
-    rightMotor_ = new Motor_TinyCircuits(0, MOTOR_RIGHT);
-    led_ = new RgbLED(4, 3, 7);
-    frontHitSensorPin_ = 8;
-    backHitSensorPin_ = 6;
-  }
-  else if (botVersion_ == ADAFRUIT)
-  {
-    ble_ = new BLE_Adafruit(BLUEFRUIT_SPI_CS, BLUEFRUIT_SPI_IRQ, BLUEFRUIT_SPI_RST);
+    ble_ = new BLE_Adafruit(1, 2, 3);
     leftMotor_ = new Motor_Adafruit(0, MOTOR_LEFT);
     rightMotor_ = new Motor_Adafruit(0, MOTOR_RIGHT);
     led_ = new RgbLED(9, 10, 11);

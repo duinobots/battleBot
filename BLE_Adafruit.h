@@ -1,11 +1,15 @@
 #pragma once
 
-#include "Arduino.h"
+// #include "Arduino.h"
 #include "BLE.h"
-#include "Adafruit_BLE.h"
-#include "Adafruit_BluefruitLE_SPI.h"
+// #include "Adafruit_BLE.h"
+// #include "Adafruit_BluefruitLE_SPI.h"
 
-#include "BluefruitConfig.h"
+// #include "BluefruitConfig.h"
+
+#include <bluefruit.h>
+#include <Adafruit_LittleFS.h>
+#include <InternalFileSystem.h>
 
 #define FACTORYRESET_ENABLE 1
 #define MINIMUM_FIRMWARE_VERSION "0.6.6"
@@ -28,13 +32,23 @@ public:
   bool writeUART(char *msg) override;
   bool available() override;
   void reset() override;
-  uint8_t* getBuffer() override;
+  uint8_t *getBuffer() override;
   void clearBuffer() override;
   void onConnect() override;
 
 private:
-  Adafruit_BluefruitLE_SPI ble_;
+  // Adafruit_BluefruitLE_SPI ble_;
+  BLEDfu bledfu;   // OTA DFU service
+  BLEDis bledis;   // device information
+  BLEUart bleuart; // uart over ble
+  BLEBas blebas;   // battery
   uint8_t buffer_[BUFFER_LENGTH];
+  static bool isConnected_;
+
+  static void connectCallback(uint16_t conn_handle);
+  static void disconnectCallback(uint16_t conn_handle, uint8_t reason);
+
+  void startAdv(void);
 
   /**
    * @brief write received BLE info to Serial Monitor, only runs if BLE_DEBUG is true
