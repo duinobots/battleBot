@@ -7,16 +7,10 @@ BLE_TinyCircuits::BLE_TinyCircuits()
   : ble_()
 { }
 
-BLE_TinyCircuits::~BLE_TinyCircuits()
-{
-//  delete &ble_;
-}
-
 bool BLE_TinyCircuits::init()
 {
   Serial.println("entering BLE_TinyCircuits::init()");
-  bool success = (bool)ble_.init();
-  return success;
+  return (bool)ble_.init();
 }
 
 bool BLE_TinyCircuits::isConnected()
@@ -47,6 +41,7 @@ uint8_t* BLE_TinyCircuits::getBuffer()
 void BLE_TinyCircuits::clearBuffer()
 {
   // todo
+  return;
 }
 
 void BLE_TinyCircuits::onConnect()

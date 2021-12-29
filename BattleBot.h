@@ -13,18 +13,19 @@ typedef enum
 {
   ADAFRUIT = 1,
   TINY_CIRCUITS = 2
-} bot_versions;
+} BotVersions;
 
 typedef enum
 {
   DAMAGE_TYPE_FRONT = 1,
   DAMAGE_TYPE_BACK = 2
-} battleBot_damage_types;
+} BattleBotDamageTypes;
 
 class BattleBot
 {
 public:
-  BattleBot(bot_versions version);
+  BattleBot(BotVersions version);
+  ~BattleBot();
 
   void init();
 
@@ -56,7 +57,7 @@ private:
   void stop();
 
   void detectDamage();
-  void notifyDamage(battleBot_damage_types type);
+  void notifyDamage(BattleBotDamageTypes type);
   void updateHealth(int health);
   void updateLED();
 
@@ -64,7 +65,7 @@ private:
   void sendTestMessageAck();
   void parseCommand(uint8_t *buf);
 
-  bot_versions botVersion_;
+  BotVersions botVersion_;
 
   Weapon *weapon_;
   Motor *leftMotor_;
@@ -72,18 +73,22 @@ private:
   BLE *ble_;
   RgbLED *led_;
 
-  int health_ = 100;
-  bool isEnabled_ = false;
-  bool isConnected_ = false;
-  long lastUpdateMs_ = 0;
+  int health_;
+  bool isEnabled_;
+  bool isConnected_;
+  long lastUpdateMs_;
 
-  bool hardwareInitComplete_ = false; /* used to flag that serial, motor shield, and hit sensor/LED pins have been initialized */
-  bool configReceived_ = false;
+  /* used to flag that serial, motor shield, and hit sensor/LED pins have been initialized */
+  bool hardwareInitComplete_;
+  bool configReceived_;
 
   int frontHitSensorPin_ = 0;
   int backHitSensorPin_ = 0;
 
-  int hitDebounceMs_ = 800;  /* debounce timer for hit detection via hit sensors */
-  long lastFrontHitMs_ = 0;  /* time of last hit recorded by front hit sensor */
-  long lastBackHitMs_ = 0;   /* time of last hit recorded by back hit sensor */
+  /* debounce timer for hit detection via hit sensors */
+  int hitDebounceMs_ = 800;
+  /* time of last hit recorded by front hit sensor */
+  long lastFrontHitMs_;
+  /* time of last hit recorded by back hit sensor */
+  long lastBackHitMs_;
 };

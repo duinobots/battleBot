@@ -11,8 +11,8 @@
 /*
  * Bot constructor
  */
-BattleBot::BattleBot(bot_versions version)
-  : botVersion_(version)
+BattleBot::BattleBot(BotVersions version)
+    : botVersion_(version), health_(100), isEnabled_(false), hardwareInitComplete_(false), configReceived_(false), lastFrontHitMs_(millis()), lastBackHitMs_(millis()), lastUpdateMs_(millis())
 {
   if (botVersion_ == TINY_CIRCUITS)
   {
@@ -32,16 +32,11 @@ BattleBot::BattleBot(bot_versions version)
     frontHitSensorPin_ = 12;
     backHitSensorPin_ = 6;
   }
+}
 
-  health_ = 100;
-  isEnabled_ = false;
-  hardwareInitComplete_ = false;
-
-  long seed = millis();
-
-  lastFrontHitMs_ = seed;
-  lastBackHitMs_ = seed;
-  lastUpdateMs_ = seed;
+BattleBot::~BattleBot()
+{
+  delete ble_, leftMotor_, rightMotor_, led_;
 }
 
 /*
@@ -57,9 +52,7 @@ BattleBot::BattleBot(bot_versions version)
 void BattleBot::init()
 {
   if (botVersion_ == TINY_CIRCUITS)
-  {
     Wire.begin();
-  }
 
   if (!hardwareInitComplete_)
   {
@@ -93,7 +86,6 @@ void BattleBot::init()
 
   Serial.println("Ready for battle!!");
 }
-
 
 void BattleBot::enable()
 {
@@ -144,7 +136,6 @@ void BattleBot::deathRattle()
   {
     led_->setColor(i, 0, 0);
     right(i);
-    // Serial.println(i);
     delay(10);
   }
 }
@@ -158,9 +149,7 @@ void BattleBot::waitForReset()
 
   // wait for health update command to revive the bot
   while (!isAlive())
-  {
     handleInputs();
-  }
 
   //re-initialize
   init();
@@ -179,7 +168,7 @@ void BattleBot::bleInit()
 
   if (!hardwareInitComplete_)
   {
-    /* Initialise the module */
+    // Initialise the module
     Serial.print("Initialising the BLE module:");
     ble_->init();
     Serial.print("BLE initialized");
@@ -190,16 +179,14 @@ void BattleBot::bleInit()
   }
 
   if (!wasReset)
-  {
     ble_->reset();
-  }
 
   Serial.println("Waiting to connect..");
 
   led_->setStatus(LED_STATUS_WAITING_FOR_CONNECT);
 
-  /* Wait for connection */
-   while (!ble_->isConnected())
+  // Wait for connection to central
+  while (!ble_->isConnected())
   {
     ble_->available();
     led_->update();
@@ -208,7 +195,6 @@ void BattleBot::bleInit()
 
   onConnect();
 }
-
 
 /*
  * Blocking loop until weapon config received from central
@@ -226,8 +212,6 @@ void BattleBot::waitForConfig()
   }
 
   led_->setStatus(LED_STATUS_OK);
-
-  return;
 }
 
 /*
@@ -250,6 +234,13 @@ void BattleBot::setConfig(uint8_t *config)
 {
   int weaponClass, actuatorInputPin, actuatorMin, actuatorMax, actuatorIsInverted;
   bool configSet = false;
+  Serial.println("got config:");
+  Serial.println(config[1]);
+  Serial.println(config[2]);
+  Serial.println(config[3]);
+  Serial.println(config[4]);
+  Serial.println(config[5]);
+  Serial.println(config[6]);
 
   weaponClass = config[2];
   actuatorInputPin = config[3];
@@ -353,7 +344,6 @@ void BattleBot::stop()
 void BattleBot::detectDamage()
 {
   bool frontHit, backHit;
-
   frontHit = (bool)digitalRead(frontHitSensorPin_);
   backHit = (bool)digitalRead(backHitSensorPin_);
 
@@ -373,7 +363,7 @@ void BattleBot::detectDamage()
 /*
  * Update central with type of hit received
  */
-void BattleBot::notifyDamage(battleBot_damage_types type)
+void BattleBot::notifyDamage(BattleBotDamageTypes type)
 {
   switch (type)
   {
@@ -449,7 +439,7 @@ void BattleBot::handleInputs()
     if (ble_->available())
     {
       // Serial.print("BLE Data available! -> ");
-      uint8_t* buff = ble_->getBuffer();
+      uint8_t *buff = ble_->getBuffer();
       // Serial.println((char*)buff);
       parseCommand(buff);
       ble_->clearBuffer();
@@ -473,39 +463,62 @@ void BattleBot::sendTestMessageAck()
  */
 void BattleBot::parseCommand(uint8_t *buf)
 {
+  Serial.println("parseCommand buf is -> ");
+  //  Serial.println(*buf);
   // min msg length is 4 bytes, so can only have up to 5 in single packet
   int msgStartIndices[5] = {0, 0, 0, 0, 0};
+  int msgEndIndices[5] = {0, 0, 0, 0, 0};
   int msgStart = -1;
   int msgEnd = -1;
-  int msgsFound = 0;
+  int msgStartsFound = 0, msgEndsFound = 0;
 
   for (int i = 0; i < 20; i++)
   {
+    Serial.println(buf[i]);
     if (buf[i] == 33)
     {
-      msgStartIndices[msgsFound] = i;
-      msgsFound++;
+      msgStartIndices[msgStartsFound] = i;
+      msgStartsFound++;
+    }
+    if (buf[i] == 126)
+    {
+      msgEndIndices[msgEndsFound] = i;
+      msgEndsFound++;
     }
   }
 
-  for (int i = 0; i < msgsFound; i++)
+  Serial.println("-----------");
+  if (msgStartsFound != msgEndsFound)
   {
+    Serial.println("found partial message at trailing end of buffer, only processing full messages");
+    // don't iterate over last incomplete message
+    msgStartsFound--;
+  }
 
+  for (int i = 0; i < msgStartsFound; i++)
+  {
     int msg, val;
-    msg = buf[msgStartIndices[i] + 1];
-    // Serial.print("parseCommand msg is -> ");
-    // Serial.println((char)msg);
-    val = buf[msgStartIndices[i] + 2];
-    // Serial.print("parseCommand val is -> ");
-    // Serial.println((int)val);
+    int msgLength = msgEndIndices[i] - msgStartIndices[i];
+    uint8_t msgBuffer[msgLength];
+    for (int j = 0; j < msgLength; j++)
+    {
+      msgBuffer[j] = buf[msgStartIndices[i] + j];
+      Serial.print("adding to msgBuffer -> ");
+      Serial.println((int)msgBuffer[j]);
+    }
+    msg = msgBuffer[1];
+    Serial.print("parseCommand msg is -> ");
+    Serial.println((char)msg);
+    val = msgBuffer[2];
+    Serial.print("parseCommand val is -> ");
+    Serial.println((int)val);
 
     switch (msg)
     {
     // drive
     case 'D':
-      int leftMagnitude, rightMagnitude;
+      int leftMagnitude, rightMagnitude, leftCmd, rightCmd;
       bool leftReversed, rightReversed;
-      int leftCmd, rightCmd;
 
       leftReversed = buf[2];
       leftMagnitude = buf[3];
@@ -517,23 +530,18 @@ void BattleBot::parseCommand(uint8_t *buf)
 
       drive(leftCmd, rightCmd);
       break;
-
     case 'F':
       forward(val);
       break;
-
     case 'B':
       backward(val);
       break;
-
     case 'L':
       left(val);
       break;
-
     case 'R':
       right(val);
       break;
-
     // weapon commands
     case 'W':
       if (!val || (char)val == '~')
@@ -547,36 +555,23 @@ void BattleBot::parseCommand(uint8_t *buf)
         weapon_->writeValue(val);
       }
       break;
-
     // pause weapon updates
     case 'P':
-      if ((bool)val)
-      {
-        weapon_->pause();
-      }
-      else
-      {
-        weapon_->resume();
-      }
-
+      (bool)val ? weapon_->pause() : weapon_->resume();
       break;
-
     // health update
     case 'H':
       updateHealth(val);
       break;
-
     // config command
     case 'C':
       Serial.println("config command received");
-      setConfig(buf);
+      setConfig(msgBuffer);
       break;
-
     // test message
     case 'T':
       sendTestMessageAck();
       break;
-
     // stop command
     case 'S':
     default:

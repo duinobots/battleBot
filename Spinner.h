@@ -13,7 +13,7 @@ public:
   Spinner(const Actuator& actuator);
   ~Spinner() = default;
 
-  void init() override;
+  bool init() override;
   void actuate() override;
   void update() override;
   void writeValue(const int val) override;
@@ -24,8 +24,16 @@ protected:
 private:
   Motor *motor_;
   bool isOn_;
-
+  /**
+   * @brief Begin spinning the weapon at max speed
+   */
   void spin();
+  /**
+   * @brief Stop spinning the weapon
+   */
   void stop();
+  /**
+   * @brief Convenience function for toggling the spinner on and off
+   */
   void toggle();
 };

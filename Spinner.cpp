@@ -5,12 +5,12 @@ Spinner::Spinner(const Actuator& actuator)
   : Weapon(actuator)
 { }
 
-void Spinner::init()
+bool Spinner::init()
 {
   if (actuator_.getType() != ACTUATOR_TYPE_DCMOTOR)
   {
     Serial.println("Spinner weapons require a DC motor actuator!");
-    return;
+    return false;
   }
 
   motor_->init(Motor::PWM_FREQUENCY);
@@ -19,14 +19,13 @@ void Spinner::init()
   stop();
 
   Serial.println("Spinner initialized!!");
+  return true;
 }
 
 void Spinner::actuate()
 {
   if (!isEnabled())
-  {
     return;
-  }
 
   toggle();
 }
@@ -41,9 +40,6 @@ void Spinner::update()
  */
 void Spinner::writeValue(int val)
 {
-  val = val > 255 ? 255 : val;
-  val = val < -255 ? -255 : val;
-
   motor_->setSpeed(abs(val));
 }
 

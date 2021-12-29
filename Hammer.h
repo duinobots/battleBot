@@ -11,7 +11,7 @@ public:
   Hammer(const Actuator& actuator);
   ~Hammer() = default;
 
-  void init() override;
+  bool init() override;
   void actuate() override;
   void update() override;
   void writeValue(const int val) override;
@@ -23,13 +23,11 @@ private:
   /**
    * @brief Cooldown in ms between allowed hammer swings
    */
-  static constexpr long HAMMER_COOLDOWN_MS = 500;
-
+  static constexpr unsigned int HAMMER_COOLDOWN_MS = 500;
   /**
    * @brief Bring the hammer to the upright position
    */
   void home();
-
   /**
    * @brief Swing the hammer down
    */

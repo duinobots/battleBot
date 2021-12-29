@@ -3,7 +3,7 @@
 
 typedef enum
 {
-  ACTUATOR_TYPE_UNKNOWN = (0),
+  ACTUATOR_TYPE_UNKNOWN = (-1),
   ACTUATOR_TYPE_DCMOTOR = (1),
   ACTUATOR_TYPE_SERVO = (2)
 } ActuatorTypes;

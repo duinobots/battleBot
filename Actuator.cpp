@@ -1,7 +1,8 @@
 #include "Actuator.h"
 
 Actuator::Actuator(const ActuatorTypes type, const ActuatorConfig& conf)
-  : type_(type), config_(conf)
+  : type_(type)
+  , config_(conf)
 {
 }
 

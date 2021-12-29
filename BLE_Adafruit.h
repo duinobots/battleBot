@@ -15,28 +15,29 @@
 #include <SoftwareSerial.h>
 #endif
 
-#define BUFFER_LENGTH 20
-
-#define ADAFRUIT_BLE_DEBUG_MODE true
+#define ADAFRUIT_BLE_DEBUG_MODE false
 
 class BLE_Adafruit : public BLE
 {
-  public:
-    BLE_Adafruit(int8_t csPin, int8_t irqPin, int8_t rstPin);
-    ~BLE_Adafruit();
+public:
+  BLE_Adafruit(int8_t csPin, int8_t irqPin, int8_t rstPin);
+  ~BLE_Adafruit() = default;
 
-    bool init();
-    bool isConnected();
-    bool writeUART(char *msg);
-    bool available();
-    void reset();
-    uint8_t* getBuffer();
-    void clearBuffer();
-    void onConnect();
+  bool init() override;
+  bool isConnected() override;
+  bool writeUART(char *msg) override;
+  bool available() override;
+  void reset() override;
+  uint8_t* getBuffer() override;
+  void clearBuffer() override;
+  void onConnect() override;
 
-  private:
-    Adafruit_BluefruitLE_SPI ble_;
-    uint8_t buffer_[BUFFER_LENGTH];
+private:
+  Adafruit_BluefruitLE_SPI ble_;
+  uint8_t buffer_[BUFFER_LENGTH];
 
-    void writeBleDebug(uint8_t c);
+  /**
+   * @brief write received BLE info to Serial Monitor, only runs if BLE_DEBUG is true
+   */
+  void writeBleDebug(uint8_t c);
 };

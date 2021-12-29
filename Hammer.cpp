@@ -1,32 +1,32 @@
 #include "Hammer.h"
 #include "Arduino.h"
-#include "Servo.h"
 
 Hammer::Hammer(const Actuator& actuator)
-  : Weapon(actuator), lastHitMs_(millis()), coolDownMs_(Hammer::HAMMER_COOLDOWN_MS)
+  : Weapon(actuator)
+  , lastHitMs_(millis())
+  , coolDownMs_(Hammer::HAMMER_COOLDOWN_MS)
 { }
 
-void Hammer::init()
+bool Hammer::init()
 {
   if (actuator_.getType() != ACTUATOR_TYPE_SERVO)
   {
     Serial.println("Hammer type weapons require a servo actuator!");
-    return;
+    return false;
   }
 
   servo_.attach(actuator_.getConfig().inputPin_);
   enable();
   home();
   Serial.println("Hammer initialized!!");
+  return true;
 }
 
 void Hammer::actuate()
 {
   Serial.println("hammer actuated!");
   if (!isEnabled())
-  {
     return;
-  }
 
   swing();
   lastHitMs_ = millis();
@@ -35,14 +35,10 @@ void Hammer::actuate()
 void Hammer::update()
 {
   if (isPaused())
-  {
     return;
-  }
 
   if (millis() - lastHitMs_ > coolDownMs_)
-  {
     home();
-  }
 }
 
 void Hammer::writeValue(int val)

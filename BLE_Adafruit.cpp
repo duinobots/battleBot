@@ -6,11 +6,6 @@ BLE_Adafruit::BLE_Adafruit(int8_t csPin, int8_t irqPin, int8_t rstPin)
     : ble_(csPin, irqPin, rstPin)
 { }
 
-BLE_Adafruit::~BLE_Adafruit()
-{
-//  delete &ble_;
-}
-
 /**
  * Initializes BlueFruit module. returns true if init was successful,
  * returns false if not
@@ -31,7 +26,7 @@ bool BLE_Adafruit::init()
 
   /* Disable command echo from Bluefruit */
   ble_.echo(false);
-  ble_.verbose(false); // debug info is a little annoying after this point!
+  ble_.verbose(BLE_DEBUG); // debug info is a little annoying after this point!
 
   return true;
 }
@@ -82,16 +77,20 @@ uint8_t* BLE_Adafruit::getBuffer()
       break;
     }
 
-    if (ADAFRUIT_BLE_DEBUG_MODE)
+    if (BLE_DEBUG)
     {
       writeBleDebug(c);
     }
 
   }
+
+#if BLE_DEBUG
   Serial.print("BLE_Adafruit::getBuffer(), buffer_ -> ");
   Serial.println((char*)buffer_);
   Serial.print("sizeof(buffer_) -> ");
   Serial.println(sizeof(buffer_));
+#endif
+
   return buffer_;
 }
 

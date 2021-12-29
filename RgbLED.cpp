@@ -1,16 +1,13 @@
 #include "RgbLED.h"
 #include "Arduino.h"
 
-RgbLED::RgbLED(int rPin, int gPin, int bPin)
-{
-  rPin_ = rPin;
-  gPin_ = gPin;
-  bPin_ = bPin;
-  lastStatusChange_ = 0;
-  isOn_ = false;
-}
-
-RgbLED::~RgbLED()
+RgbLED::RgbLED(uint8_t rPin, uint8_t gPin, uint8_t bPin)
+  : rPin_(rPin)
+  , gPin_(gPin)
+  , bPin_(bPin)
+  , lastStatusChange_(0)
+  , statusTimeout_(0)
+  , isOn_(false)
 {
 }
 
@@ -23,12 +20,12 @@ void RgbLED::init()
   lastStatusChange_ = millis();
 }
 
-void RgbLED::setStatus(led_statuses status)
+void RgbLED::setStatus(const LEDStatuses& status)
 {
   setStatus(LED_STATUSES[status]);
 }
 
-void RgbLED::setStatus(led_status status)
+void RgbLED::setStatus(LEDStatus status)
 {
   bool statusChanged = false;
 
@@ -40,9 +37,7 @@ void RgbLED::setStatus(led_status status)
   if (status == LED_STATUSES[LED_STATUS_OFF])
   {
     if (isOn_)
-    {
       statusChanged = true;
-    }
 
     isOn_ = false;
   }
@@ -65,12 +60,10 @@ void RgbLED::setStatus(led_status status)
   }
 
   if (statusChanged)
-  {
     lastStatusChange_ = millis();
-  }
 }
 
-void RgbLED::setColor(int r, int g, int b)
+void RgbLED::setColor(uint8_t r, uint8_t g, uint8_t b)
 {
   analogWrite(rPin_, r);
   analogWrite(gPin_, g);
@@ -102,24 +95,16 @@ void RgbLED::turnOff()
 void RgbLED::update()
 {
   if (currentStatus_.timeout != 0 && (millis() - statusTimeout_) > currentStatus_.timeout)
-  {
     setStatus(lastStatus_);
-  }
 
   if (currentStatus_.blinkInterval == 0)
-  {
     return;
-  }
 
   if ((millis() - lastStatusChange_) > currentStatus_.blinkInterval)
   {
     if (isOn_)
-    {
       turnOff();
-    }
     else
-    {
       setStatus(currentStatus_);
-    }
   }
 };
