@@ -1,9 +1,12 @@
 #include "Arduino.h"
 #include "BLE_Adafruit.h"
+#include "BLE.h"
 // #include "BluefruitConfig.h"
 
+bool BLE_Adafruit::isConnected_ = false;
+
 BLE_Adafruit::BLE_Adafruit(int8_t csPin, int8_t irqPin, int8_t rstPin)
-    // : isConnected_(false)
+//     : isConnected_(false)
 {
 }
 
@@ -11,7 +14,6 @@ BLE_Adafruit::~BLE_Adafruit()
 {
   delete bledfu, bledis, bleuart, blebas;
 }
-
 
 /**
  * Initializes BlueFruit module. returns true if init was successful,
@@ -77,6 +79,8 @@ void BLE_Adafruit::connectCallback(uint16_t conn_handle)
   // Get the reference to current connection
   BLEConnection *connection = Bluefruit.Connection(conn_handle);
 
+  BLE_Adafruit::isConnected_ = true;
+
   char central_name[32] = {0};
   connection->getPeerName(central_name, sizeof(central_name));
 
@@ -94,6 +98,7 @@ void BLE_Adafruit::disconnectCallback(uint16_t conn_handle, uint8_t reason)
 //  BLE_Adafruit::isConnected_ = false;
   (void)conn_handle;
   (void)reason;
+  BLE_Adafruit::isConnected_ = false;
 
   Serial.println();
   Serial.print("Disconnected, reason = 0x");
@@ -102,7 +107,7 @@ void BLE_Adafruit::disconnectCallback(uint16_t conn_handle, uint8_t reason)
 
 bool BLE_Adafruit::isConnected()
 {
-  return false;
+  return BLE_Adafruit::isConnected_;
 }
 
 bool BLE_Adafruit::writeUART(char *msg)
@@ -164,8 +169,11 @@ uint8_t *BLE_Adafruit::getBuffer()
 
   while (available())
   {
+    Serial.print("ble is available");
     uint8_t c = bleuart->read();
 
+    Serial.print("reading char -> ");
+    Serial.println((char)c);
     buffer_[i] = c;
     i++;
 

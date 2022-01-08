@@ -1,7 +1,7 @@
 #include "BattleBot.h"
 // #include "BLE_TinyCircuits.h"
 // #include "Motor_TinyCircuits.h"
- #include "BLE_Adafruit.h"
+#include "BLE_Adafruit.h"
 // #include "BluefruitConfig.h"
 #include "Motor_Adafruit.h"
 #include "Hammer.h"
@@ -9,20 +9,20 @@
 #include "Weapon.h"
 
 /*
- * Bot constructor
- */
+   Bot constructor
+*/
 BattleBot::BattleBot(BotVersions version)
-    : botVersion_(version), health_(100), isEnabled_(false), hardwareInitComplete_(false), configReceived_(false), lastFrontHitMs_(millis()), lastBackHitMs_(millis()), lastUpdateMs_(millis())
+  : botVersion_(version), health_(100), isEnabled_(false), hardwareInitComplete_(false), configReceived_(false), lastFrontHitMs_(millis()), lastBackHitMs_(millis()), lastUpdateMs_(millis())
 {
-//  if (botVersion_ == TINY_CIRCUITS)
-//  {
-//    ble_ = new BLE_TinyCircuits();
-//    leftMotor_ = new Motor_TinyCircuits(0, MOTOR_LEFT);
-//    rightMotor_ = new Motor_TinyCircuits(0, MOTOR_RIGHT);
-//    led_ = new RgbLED(4, 3, 7);
-//    frontHitSensorPin_ = 8;
-//    backHitSensorPin_ = 6;
-//  }
+  //  if (botVersion_ == TINY_CIRCUITS)
+  //  {
+  //    ble_ = new BLE_TinyCircuits();
+  //    leftMotor_ = new Motor_TinyCircuits(0, MOTOR_LEFT);
+  //    rightMotor_ = new Motor_TinyCircuits(0, MOTOR_RIGHT);
+  //    led_ = new RgbLED(4, 3, 7);
+  //    frontHitSensorPin_ = 8;
+  //    backHitSensorPin_ = 6;
+  //  }
   if (botVersion_ == ADAFRUIT)
   {
     ble_ = new BLE_Adafruit(1, 2, 3);
@@ -40,25 +40,25 @@ BattleBot::~BattleBot()
 }
 
 /*
- * Public member functions
- */
+   Public member functions
+*/
 
 /*
- * bot setup function, does the following:
- * 1. initializes pins/LED
- * 2. inits BLE/connects to central
- * 3. receives/sets robot config
- */
+   bot setup function, does the following:
+   1. initializes pins/LED
+   2. inits BLE/connects to central
+   3. receives/sets robot config
+*/
 void BattleBot::init()
 {
   Serial.begin(115200);
   while (!Serial) delay(10);
 
   Serial.println("Serial init");
-//  Serial.println("entering init!");
-//  if (botVersion_ == TINY_CIRCUITS)
-//    Wire.begin();
-//
+  //  Serial.println("entering init!");
+  //  if (botVersion_ == TINY_CIRCUITS)
+  //    Wire.begin();
+  //
   if (!hardwareInitComplete_)
   {
     Serial.println("hardwareInit not complete!");
@@ -75,17 +75,17 @@ void BattleBot::init()
     led_->init();
   }
 
-  Serial.println("about to initialize BLE!");
-  // connect to phone
-  bleInit();
+    Serial.println("about to initialize BLE!");
+    // connect to phone
+   bleInit();
 
-//  // upload weapon config
-//  waitForConfig();
-//
-//  Serial.println("Config received!");
-//
-//  enable();
-//  weapon_->init();
+    // upload weapon config
+    waitForConfig();
+  
+    Serial.println("Config received!");
+  
+    enable();
+    weapon_->init();
 
   Serial.println("Ready for battle!!");
 }
@@ -116,12 +116,12 @@ const bool BattleBot::isAlive() const
 }
 
 /*
- * Main update function, performs four main tasks:
- * 1. handle any inputs received from central
- * 2. detect hits/damage and notify central if so
- * 3. update weapon
- * 4. update LED display status
- */
+   Main update function, performs four main tasks:
+   1. handle any inputs received from central
+   2. detect hits/damage and notify central if so
+   3. update weapon
+   4. update LED display status
+*/
 void BattleBot::battle()
 {
   handleInputs();
@@ -131,8 +131,8 @@ void BattleBot::battle()
 }
 
 /*
- * Execute a dramatic death spiral
- */
+   Execute a dramatic death spiral
+*/
 void BattleBot::deathRattle()
 {
   for (int i = 255; i >= 0; i--)
@@ -144,8 +144,8 @@ void BattleBot::deathRattle()
 }
 
 /*
- * Shut down bot and wait for health command to revive and re-initialize
- */
+   Shut down bot and wait for health command to revive and re-initialize
+*/
 void BattleBot::waitForReset()
 {
   shutdown();
@@ -159,50 +159,50 @@ void BattleBot::waitForReset()
 }
 
 /*
- * Private member functions
- */
+   Private member functions
+*/
 
 /*
- * Initialize BLE and wait for connect
- */
+   Initialize BLE and wait for connect
+*/
 void BattleBot::bleInit()
 {
   Serial.println("bleInit()!");
   bool wasReset = false;
 
-//  if (!hardwareInitComplete_)
-//  {
-//    // Initialise the module
-//    Serial.print("Initialising the BLE module:");
-//    ble_->init();
-//    Serial.print("BLE initialized");
-//
-//    // set flag to true after ble module is initialized
-//    hardwareInitComplete_ = true;
-//    wasReset = true;
-//  }
-//
-//  if (!wasReset)
-//    ble_->reset();
-//
-//  Serial.println("Waiting to connect..");
-//
-//  led_->setStatus(LED_STATUS_WAITING_FOR_CONNECT);
-//
-//  // Wait for connection to central
-//  while (!ble_->isConnected())
-//  {
-//    ble_->available();
-//    led_->update();
-//    delay(50);
-//  }
-//
-//  onConnect();
+    if (!hardwareInitComplete_)
+    {
+      // Initialise the module
+      Serial.print("Initialising the BLE module:");
+      ble_->init();
+      Serial.print("BLE initialized");
+  
+      // set flag to true after ble module is initialized
+      hardwareInitComplete_ = true;
+      wasReset = true;
+    }
+  
+    if (!wasReset)
+      ble_->reset();
+  
+    Serial.println("Waiting to connect..");
+  
+    led_->setStatus(LED_STATUS_WAITING_FOR_CONNECT);
+  
+    // Wait for connection to central
+    while (!ble_->isConnected())
+    {
+      ble_->available();
+      led_->update();
+      delay(50);
+    }
+  
+    onConnect();
 }
 
 /*
- * Blocking loop until weapon config received from central
- */
+   Blocking loop until weapon config received from central
+*/
 void BattleBot::waitForConfig()
 {
   Serial.println("waiting for config packet..");
@@ -219,8 +219,8 @@ void BattleBot::waitForConfig()
 }
 
 /*
- * Shutdown and stop the bot, reset config
- */
+   Shutdown and stop the bot, reset config
+*/
 void BattleBot::shutdown()
 {
   stop();
@@ -230,10 +230,10 @@ void BattleBot::shutdown()
 }
 
 /*
- * set up weapon from config message
- * todo: the entire config packet is probably kind of overkill, could reduce to just
- * weapon class and store configs for each type as a member variable.
- */
+   set up weapon from config message
+   todo: the entire config packet is probably kind of overkill, could reduce to just
+   weapon class and store configs for each type as a member variable.
+*/
 void BattleBot::setConfig(uint8_t *config)
 {
   int weaponClass, actuatorInputPin, actuatorMin, actuatorMax, actuatorIsInverted;
@@ -261,25 +261,25 @@ void BattleBot::setConfig(uint8_t *config)
   // switching weapon class points our weapon_ pointer to the address of (&) our hammer and spinner objects
   switch (weaponClass)
   {
-  case (WEAPON_TYPE_HAMMER):
-    Serial.println("initializing hammer!");
-    weapon_ = &hammer;
-    configReceived_ = true;
-    break;
-  case (WEAPON_TYPE_SPINNER):
-    Serial.println("initializing spinner!");
-    weapon_ = &spinner;
-    configReceived_ = true;
-    break;
-  default:
-    Serial.println("Got Invalid Weapon Type!");
-    break;
+    case (WEAPON_TYPE_HAMMER):
+      Serial.println("initializing hammer!");
+      weapon_ = &hammer;
+      configReceived_ = true;
+      break;
+    case (WEAPON_TYPE_SPINNER):
+      Serial.println("initializing spinner!");
+      weapon_ = &spinner;
+      configReceived_ = true;
+      break;
+    default:
+      Serial.println("Got Invalid Weapon Type!");
+      break;
   }
 }
 
 /*
- * Callback executed on connection to central
- */
+   Callback executed on connection to central
+*/
 void BattleBot::onConnect()
 {
   led_->setStatus(LED_STATUS_OK);
@@ -291,8 +291,8 @@ void BattleBot::onConnect()
 }
 
 /*
- * Callback executed on disconnection from central
- */
+   Callback executed on disconnection from central
+*/
 void BattleBot::onDisconnect()
 {
   Serial.println("BLE Disconnected!!");
@@ -343,8 +343,8 @@ void BattleBot::stop()
 }
 
 /*
- * Determine if damage was taken
- */
+   Determine if damage was taken
+*/
 void BattleBot::detectDamage()
 {
   bool frontHit, backHit;
@@ -365,40 +365,40 @@ void BattleBot::detectDamage()
 }
 
 /*
- * Update central with type of hit received
- */
+   Update central with type of hit received
+*/
 void BattleBot::notifyDamage(BattleBotDamageTypes type)
 {
   switch (type)
   {
-  case DAMAGE_TYPE_FRONT:
-    Serial.println("Front Hit Detected!");
-    ble_->writeUART("!F");
-    break;
-  case DAMAGE_TYPE_BACK:
-    Serial.println("Back Hit Detected!");
-    ble_->writeUART("!B");
-    break;
-  default:
-    Serial.println("damageDetected() case hit default..");
-    break;
+    case DAMAGE_TYPE_FRONT:
+      Serial.println("Front Hit Detected!");
+      ble_->writeUART("!F");
+      break;
+    case DAMAGE_TYPE_BACK:
+      Serial.println("Back Hit Detected!");
+      ble_->writeUART("!B");
+      break;
+    default:
+      Serial.println("damageDetected() case hit default..");
+      break;
   }
 
   led_->setStatus(LED_STATUS_HIT_DETECTED);
 }
 
 /*
- * Update local health. Central calculates new health value after
- * a hit notification is received, then sends it back to the bot
- */
+   Update local health. Central calculates new health value after
+   a hit notification is received, then sends it back to the bot
+*/
 void BattleBot::updateHealth(int health)
 {
   health_ = health;
 }
 
 /*
- * Set LED status based on current health and call led update function
- */
+   Set LED status based on current health and call led update function
+*/
 void BattleBot::updateLED()
 {
   // https://www.arduino.cc/reference/en/language/variables/variable-scope--qualifiers/static/
@@ -427,8 +427,8 @@ void BattleBot::updateLED()
 }
 
 /*
- * handle any inputs/commands received from central
- */
+   handle any inputs/commands received from central
+*/
 void BattleBot::handleInputs()
 {
   if (isConnected_)
@@ -442,7 +442,7 @@ void BattleBot::handleInputs()
 
     if (ble_->available())
     {
-      // Serial.print("BLE Data available! -> ");
+      Serial.print("BLE Data available! -> ");
       uint8_t *buff = ble_->getBuffer();
       // Serial.println((char*)buff);
       parseCommand(buff);
@@ -452,8 +452,8 @@ void BattleBot::handleInputs()
 }
 
 /*
- * Send an acknowledgement and update LED when a Test message is received
- */
+   Send an acknowledgement and update LED when a Test message is received
+*/
 void BattleBot::sendTestMessageAck()
 {
   led_->setStatus(LED_STATUS_TEST_ACK);
@@ -463,8 +463,8 @@ void BattleBot::sendTestMessageAck()
 }
 
 /*
- * Parse a command received from central and perform the appropriate action
- */
+   Parse a command received from central and perform the appropriate action
+*/
 void BattleBot::parseCommand(uint8_t *buf)
 {
   Serial.println("parseCommand buf is -> ");
@@ -519,68 +519,68 @@ void BattleBot::parseCommand(uint8_t *buf)
 
     switch (msg)
     {
-    // drive
-    case 'D':
-      int leftMagnitude, rightMagnitude, leftCmd, rightCmd;
-      bool leftReversed, rightReversed;
+      // drive
+      case 'D':
+        int leftMagnitude, rightMagnitude, leftCmd, rightCmd;
+        bool leftReversed, rightReversed;
 
-      leftReversed = buf[2];
-      leftMagnitude = buf[3];
-      rightReversed = buf[4];
-      rightMagnitude = buf[5];
+        leftReversed = buf[2];
+        leftMagnitude = buf[3];
+        rightReversed = buf[4];
+        rightMagnitude = buf[5];
 
-      leftCmd = (leftReversed ? (-1) : 1) * leftMagnitude;
-      rightCmd = (rightReversed ? (-1) : 1) * rightMagnitude;
+        leftCmd = (leftReversed ? (-1) : 1) * leftMagnitude;
+        rightCmd = (rightReversed ? (-1) : 1) * rightMagnitude;
 
-      drive(leftCmd, rightCmd);
-      break;
-    case 'F':
-      forward(val);
-      break;
-    case 'B':
-      backward(val);
-      break;
-    case 'L':
-      left(val);
-      break;
-    case 'R':
-      right(val);
-      break;
-    // weapon commands
-    case 'W':
-      if (!val || (char)val == '~')
-      {
-        Serial.println("actuating weapon!");
-        weapon_->actuate();
-      }
-      else
-      {
-        Serial.println("writing value to weapon!");
-        weapon_->writeValue(val);
-      }
-      break;
-    // pause weapon updates
-    case 'P':
-      (bool)val ? weapon_->pause() : weapon_->resume();
-      break;
-    // health update
-    case 'H':
-      updateHealth(val);
-      break;
-    // config command
-    case 'C':
-      Serial.println("config command received");
-      setConfig(msgBuffer);
-      break;
-    // test message
-    case 'T':
-      sendTestMessageAck();
-      break;
-    // stop command
-    case 'S':
-    default:
-      stop();
-      break;
+        drive(leftCmd, rightCmd);
+        break;
+      case 'F':
+        forward(val);
+        break;
+      case 'B':
+        backward(val);
+        break;
+      case 'L':
+        left(val);
+        break;
+      case 'R':
+        right(val);
+        break;
+      // weapon commands
+      case 'W':
+        if (!val || (char)val == '~')
+        {
+          Serial.println("actuating weapon!");
+          weapon_->actuate();
+        }
+        else
+        {
+          Serial.println("writing value to weapon!");
+          weapon_->writeValue(val);
+        }
+        break;
+      // pause weapon updates
+      case 'P':
+        (bool)val ? weapon_->pause() : weapon_->resume();
+        break;
+      // health update
+      case 'H':
+        updateHealth(val);
+        break;
+      // config command
+      case 'C':
+        Serial.println("config command received");
+        setConfig(msgBuffer);
+        break;
+      // test message
+      case 'T':
+        sendTestMessageAck();
+        break;
+      // stop command
+      case 'S':
+      default:
+        stop();
+        break;
     }
   }
 };
