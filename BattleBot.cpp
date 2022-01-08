@@ -12,7 +12,7 @@
    Bot constructor
 */
 BattleBot::BattleBot(BotVersions version)
-  : botVersion_(version), health_(100), isEnabled_(false), hardwareInitComplete_(false), configReceived_(false), lastFrontHitMs_(millis()), lastBackHitMs_(millis()), lastUpdateMs_(millis())
+    : botVersion_(version), health_(100), isEnabled_(false), hardwareInitComplete_(false), configReceived_(false), lastFrontHitMs_(millis()), lastBackHitMs_(millis()), lastUpdateMs_(millis())
 {
   //  if (botVersion_ == TINY_CIRCUITS)
   //  {
@@ -52,7 +52,8 @@ BattleBot::~BattleBot()
 void BattleBot::init()
 {
   Serial.begin(115200);
-  while (!Serial) delay(10);
+  while (!Serial)
+    delay(10);
 
   Serial.println("Serial init");
   //  Serial.println("entering init!");
@@ -75,17 +76,17 @@ void BattleBot::init()
     led_->init();
   }
 
-    Serial.println("about to initialize BLE!");
-    // connect to phone
-   bleInit();
+  Serial.println("about to initialize BLE!");
+  // connect to phone
+  bleInit();
 
-    // upload weapon config
-    waitForConfig();
-  
-    Serial.println("Config received!");
-  
-    enable();
-    weapon_->init();
+  // upload weapon config
+  waitForConfig();
+
+  Serial.println("Config received!");
+
+  enable();
+  weapon_->init();
 
   Serial.println("Ready for battle!!");
 }
@@ -170,34 +171,34 @@ void BattleBot::bleInit()
   Serial.println("bleInit()!");
   bool wasReset = false;
 
-    if (!hardwareInitComplete_)
-    {
-      // Initialise the module
-      Serial.print("Initialising the BLE module:");
-      ble_->init();
-      Serial.print("BLE initialized");
-  
-      // set flag to true after ble module is initialized
-      hardwareInitComplete_ = true;
-      wasReset = true;
-    }
-  
-    if (!wasReset)
-      ble_->reset();
-  
-    Serial.println("Waiting to connect..");
-  
-    led_->setStatus(LED_STATUS_WAITING_FOR_CONNECT);
-  
-    // Wait for connection to central
-    while (!ble_->isConnected())
-    {
-      ble_->available();
-      led_->update();
-      delay(50);
-    }
-  
-    onConnect();
+  if (!hardwareInitComplete_)
+  {
+    // Initialise the module
+    Serial.print("Initialising the BLE module:");
+    ble_->init();
+    Serial.print("BLE initialized");
+
+    // set flag to true after ble module is initialized
+    hardwareInitComplete_ = true;
+    wasReset = true;
+  }
+
+  if (!wasReset)
+    ble_->reset();
+
+  Serial.println("Waiting to connect..");
+
+  led_->setStatus(LED_STATUS_WAITING_FOR_CONNECT);
+
+  // Wait for connection to central
+  while (!ble_->isConnected())
+  {
+    ble_->available();
+    led_->update();
+    delay(50);
+  }
+
+  onConnect();
 }
 
 /*
@@ -261,19 +262,19 @@ void BattleBot::setConfig(uint8_t *config)
   // switching weapon class points our weapon_ pointer to the address of (&) our hammer and spinner objects
   switch (weaponClass)
   {
-    case (WEAPON_TYPE_HAMMER):
-      Serial.println("initializing hammer!");
-      weapon_ = &hammer;
-      configReceived_ = true;
-      break;
-    case (WEAPON_TYPE_SPINNER):
-      Serial.println("initializing spinner!");
-      weapon_ = &spinner;
-      configReceived_ = true;
-      break;
-    default:
-      Serial.println("Got Invalid Weapon Type!");
-      break;
+  case (WEAPON_TYPE_HAMMER):
+    Serial.println("initializing hammer!");
+    weapon_ = &hammer;
+    configReceived_ = true;
+    break;
+  case (WEAPON_TYPE_SPINNER):
+    Serial.println("initializing spinner!");
+    weapon_ = &spinner;
+    configReceived_ = true;
+    break;
+  default:
+    Serial.println("Got Invalid Weapon Type!");
+    break;
   }
 }
 
@@ -371,17 +372,17 @@ void BattleBot::notifyDamage(BattleBotDamageTypes type)
 {
   switch (type)
   {
-    case DAMAGE_TYPE_FRONT:
-      Serial.println("Front Hit Detected!");
-      ble_->writeUART("!F");
-      break;
-    case DAMAGE_TYPE_BACK:
-      Serial.println("Back Hit Detected!");
-      ble_->writeUART("!B");
-      break;
-    default:
-      Serial.println("damageDetected() case hit default..");
-      break;
+  case DAMAGE_TYPE_FRONT:
+    Serial.println("Front Hit Detected!");
+    ble_->writeUART("!F");
+    break;
+  case DAMAGE_TYPE_BACK:
+    Serial.println("Back Hit Detected!");
+    ble_->writeUART("!B");
+    break;
+  default:
+    Serial.println("damageDetected() case hit default..");
+    break;
   }
 
   led_->setStatus(LED_STATUS_HIT_DETECTED);
@@ -442,7 +443,7 @@ void BattleBot::handleInputs()
 
     if (ble_->available())
     {
-      Serial.print("BLE Data available! -> ");
+      // Serial.print("BLE Data available! -> ");
       uint8_t *buff = ble_->getBuffer();
       // Serial.println((char*)buff);
       parseCommand(buff);
@@ -504,7 +505,7 @@ void BattleBot::parseCommand(uint8_t *buf)
     int msg, val;
     int msgLength = msgEndIndices[i] - msgStartIndices[i];
     uint8_t msgBuffer[msgLength];
-    for (int j = 0; j < msgLength; j++)
+    for (int j = 0; j <= msgLength; j++)
     {
       msgBuffer[j] = buf[msgStartIndices[i] + j];
       Serial.print("adding to msgBuffer -> ");
@@ -519,68 +520,68 @@ void BattleBot::parseCommand(uint8_t *buf)
 
     switch (msg)
     {
-      // drive
-      case 'D':
-        int leftMagnitude, rightMagnitude, leftCmd, rightCmd;
-        bool leftReversed, rightReversed;
+    // drive
+    case 'D':
+      int leftMagnitude, rightMagnitude, leftCmd, rightCmd;
+      bool leftReversed, rightReversed;
 
-        leftReversed = buf[2];
-        leftMagnitude = buf[3];
-        rightReversed = buf[4];
-        rightMagnitude = buf[5];
+      leftReversed = buf[2];
+      leftMagnitude = buf[3];
+      rightReversed = buf[4];
+      rightMagnitude = buf[5];
 
-        leftCmd = (leftReversed ? (-1) : 1) * leftMagnitude;
-        rightCmd = (rightReversed ? (-1) : 1) * rightMagnitude;
+      leftCmd = (leftReversed ? (-1) : 1) * leftMagnitude;
+      rightCmd = (rightReversed ? (-1) : 1) * rightMagnitude;
 
-        drive(leftCmd, rightCmd);
-        break;
-      case 'F':
-        forward(val);
-        break;
-      case 'B':
-        backward(val);
-        break;
-      case 'L':
-        left(val);
-        break;
-      case 'R':
-        right(val);
-        break;
-      // weapon commands
-      case 'W':
-        if (!val || (char)val == '~')
-        {
-          Serial.println("actuating weapon!");
-          weapon_->actuate();
-        }
-        else
-        {
-          Serial.println("writing value to weapon!");
-          weapon_->writeValue(val);
-        }
-        break;
-      // pause weapon updates
-      case 'P':
-        (bool)val ? weapon_->pause() : weapon_->resume();
-        break;
-      // health update
-      case 'H':
-        updateHealth(val);
-        break;
-      // config command
-      case 'C':
-        Serial.println("config command received");
-        setConfig(msgBuffer);
-        break;
-      // test message
-      case 'T':
-        sendTestMessageAck();
-        break;
-      // stop command
-      case 'S':
-      default:
-        stop();
-        break;
+      drive(leftCmd, rightCmd);
+      break;
+    case 'F':
+      forward(val);
+      break;
+    case 'B':
+      backward(val);
+      break;
+    case 'L':
+      left(val);
+      break;
+    case 'R':
+      right(val);
+      break;
+    // weapon commands
+    case 'W':
+      if (!val || (char)val == '~')
+      {
+        Serial.println("actuating weapon!");
+        weapon_->actuate();
+      }
+      else
+      {
+        Serial.println("writing value to weapon!");
+        weapon_->writeValue(val);
+      }
+      break;
+    // pause weapon updates
+    case 'P':
+      (bool)val ? weapon_->pause() : weapon_->resume();
+      break;
+    // health update
+    case 'H':
+      updateHealth(val);
+      break;
+    // config command
+    case 'C':
+      Serial.println("config command received");
+      setConfig(msgBuffer);
+      break;
+    // test message
+    case 'T':
+      sendTestMessageAck();
+      break;
+    // stop command
+    case 'S':
+    default:
+      stop();
+      break;
     }
   }
 };
