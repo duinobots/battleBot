@@ -14,13 +14,13 @@ void setup()
 
 void loop()
 {
-//  // to the death!
-//  while (bot.isAlive())
-//  {
-//    bot.battle();
-//  }
-//
-//  bot.deathRattle();
-//
-//  bot.waitForReset();
+  // to the death!
+  while (bot.isAlive())
+  {
+    bot.battle();
+  }
+
+  bot.deathRattle();
+
+  bot.waitForReset();
 }
