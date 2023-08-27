@@ -1,31 +1,32 @@
 #include "BattleBot.h"
-#include "BLE_TinyCircuits.h"
-#include "Motor_TinyCircuits.h"
+// #include "BLE_TinyCircuits.h"
+// #include "Motor_TinyCircuits.h"
 #include "BLE_Adafruit.h"
-#include "BluefruitConfig.h"
+// #include "BluefruitConfig.h"
 #include "Motor_Adafruit.h"
 #include "Hammer.h"
 #include "Spinner.h"
 #include "Weapon.h"
-
+#include "RgbLED.h"
+// #include <Serial.h>
 /*
  * Bot constructor
  */
 BattleBot::BattleBot(bot_versions version)
   : botVersion_(version)
 {
-  if (botVersion_ == TINY_CIRCUITS)
+  // if (botVersion_ == TINY_CIRCUITS)
+  // {
+  //   ble_ = new BLE_TinyCircuits();
+  //   leftMotor_ = new Motor_TinyCircuits(0, MOTOR_LEFT);
+  //   rightMotor_ = new Motor_TinyCircuits(0, MOTOR_RIGHT);
+  //   led_ = new RgbLED(4, 3, 7);
+  //   frontHitSensorPin_ = 8;
+  //   backHitSensorPin_ = 6;
+  // }
+  if (botVersion_ == ADAFRUIT)
   {
-    ble_ = new BLE_TinyCircuits();
-    leftMotor_ = new Motor_TinyCircuits(0, MOTOR_LEFT);
-    rightMotor_ = new Motor_TinyCircuits(0, MOTOR_RIGHT);
-    led_ = new RgbLED(4, 3, 7);
-    frontHitSensorPin_ = 8;
-    backHitSensorPin_ = 6;
-  }
-  else if (botVersion_ == ADAFRUIT)
-  {
-    ble_ = new BLE_Adafruit(BLUEFRUIT_SPI_CS, BLUEFRUIT_SPI_IRQ, BLUEFRUIT_SPI_RST);
+    ble_ = new BLE_Adafruit();
     leftMotor_ = new Motor_Adafruit(0, MOTOR_LEFT);
     rightMotor_ = new Motor_Adafruit(0, MOTOR_RIGHT);
     led_ = new RgbLED(9, 10, 11);
@@ -56,17 +57,17 @@ BattleBot::BattleBot(bot_versions version)
  */
 void BattleBot::init()
 {
-  if (botVersion_ == TINY_CIRCUITS)
-  {
-    Wire.begin();
-  }
+  Serial.begin(115200);
+  // if (botVersion_ == TINY_CIRCUITS)
+  // {
+  //   Wire.begin();
+  // }
 
   if (!hardwareInitComplete_)
   {
     // give everything a second to set up I guess?
     delay(1000);
 
-    Serial.begin(115200);
 
     Serial.println("Serial init");
 
@@ -252,7 +253,7 @@ void BattleBot::setConfig(uint8_t *config)
   static Hammer hammer = Hammer(ACTUATOR_TYPE_SERVO, {8, 45, 135, true});
   static Spinner spinner = Spinner(ACTUATOR_TYPE_DCMOTOR, {3, 0, 255, false});
 
-  int weaponClass, actuatorInputPin, actuatorMin, actuatorMax, actuatorIsInverted;
+  uint8_t weaponClass, actuatorInputPin, actuatorMin, actuatorMax, actuatorIsInverted;
   bool configSet = false;
 
   weaponClass = config[2];
@@ -262,6 +263,9 @@ void BattleBot::setConfig(uint8_t *config)
   actuatorIsInverted = config[6];
 
   actuator_config inputConfig = {actuatorInputPin, actuatorMin, actuatorMax, actuatorIsInverted == 1 ? true : false};
+
+  Serial.print("\nweapon class is.. ");
+  Serial.println(weaponClass);
 
   // switching weapon class points our weapon_ pointer to the address of (&) our hammer and spinner objects
   switch (weaponClass)
@@ -457,9 +461,9 @@ void BattleBot::handleInputs()
 
     if (ble_->available())
     {
-      // Serial.print("BLE Data available! -> ");
+      Serial.print("BLE Data available! -> ");
       uint8_t* buff = ble_->getBuffer();
-      // Serial.println((char*)buff);
+      Serial.println((char*)buff);
       parseCommand(buff);
       ble_->clearBuffer();
     }
@@ -502,11 +506,11 @@ void BattleBot::parseCommand(uint8_t *buf)
 
     int msg, val;
     msg = buf[msgStartIndices[i] + 1];
-    // Serial.print("parseCommand msg is -> ");
-    // Serial.println((char)msg);
+    Serial.print("parseCommand msg is -> ");
+    Serial.println((char)msg);
     val = buf[msgStartIndices[i] + 2];
-    // Serial.print("parseCommand val is -> ");
-    // Serial.println((int)val);
+    Serial.print("parseCommand val is -> ");
+    Serial.println((int)val);
 
     switch (msg)
     {
@@ -545,6 +549,7 @@ void BattleBot::parseCommand(uint8_t *buf)
 
     // weapon commands
     case 'W':
+      Serial.println("hit here!");
       if (!val || (char)val == '~')
       {
         Serial.println("actuating weapon!");
@@ -578,7 +583,8 @@ void BattleBot::parseCommand(uint8_t *buf)
     // config command
     case 'C':
       Serial.println("config command received");
-      setConfig(buf);
+      Serial.println((char*)buf);
+      setConfig(&buf[msgStartIndices[i]]);
       break;
 
     // test message

@@ -1,6 +1,4 @@
 #include "Hammer.h"
-#include "Arduino.h"
-#include "Servo.h"
 
 Hammer::Hammer(actuator_types type, actuator_config conf)
 {

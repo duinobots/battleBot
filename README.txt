@@ -10,12 +10,12 @@ Installing additional libraries:
 
 The Arduino sketch requires two additional libraries to run:
 
-1. Adafruit BlueFruitLE nrf51
+1. Set up support for Adafruit nrf52 Feather board at https://learn.adafruit.com/bluefruit-nrf52-feather-learning-guide/arduino-bsp-setup
 2. Adafruit Motor Shield V2 Library
 
 To install the libraries:
 
-1. In the Arduino IDE, navigate to the Library Manager under 'Sketch' > 'Include Library' > 'Manage Libraries...'
+1. Set up support for Adafruit nrf52 Feather board at https://learn.adafruit.com/bluefruit-nrf52-feather-learning-guide/arduino-bsp-setup
 2. Search for the two libraries named above and install
 
 Wiring:

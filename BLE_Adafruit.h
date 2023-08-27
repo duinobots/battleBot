@@ -1,33 +1,27 @@
 #pragma once
 
-#include "Arduino.h"
 #include "BLE.h"
-#include "Adafruit_BLE.h"
-#include "Adafruit_BluefruitLE_SPI.h"
+#include "bluefruit_common.h"
+#include <bluefruit.h>
 
-#include "BluefruitConfig.h"
+#include "BLECharacteristic.h"
+#include "BLEService.h"
 
-#define FACTORYRESET_ENABLE 1
-#define MINIMUM_FIRMWARE_VERSION "0.6.6"
-#define MODE_LED_BEHAVIOUR "MODE"
-
-#if SOFTWARE_SERIAL_AVAILABLE
-#include <SoftwareSerial.h>
+#ifndef BUFFER_LENGTH
+#define BUFFER_LENGTH 20
 #endif
 
-#define BUFFER_LENGTH 20
+#define ADAFRUIT_BLE_DEBUG_MODE 1
 
-#define ADAFRUIT_BLE_DEBUG_MODE true
-
-class BLE_Adafruit : public BLE
+class BLE_Adafruit : public BLE, BLEService
 {
   public:
-    BLE_Adafruit(int8_t csPin, int8_t irqPin, int8_t rstPin);
+    BLE_Adafruit();
     ~BLE_Adafruit();
 
     bool init();
     bool isConnected();
-    bool writeUART(char *msg);
+    bool writeUART(const char *msg);
     bool available();
     void reset();
     uint8_t* getBuffer();
@@ -35,8 +29,15 @@ class BLE_Adafruit : public BLE
     void onConnect();
 
   private:
-    Adafruit_BluefruitLE_SPI ble_;
+    BLEDis bledis_;
+    BLEUart bleuart_;
+    BLECharacteristic bleWriteChar1_;
+    BLECharacteristic bleWriteChar2_;
+    BLECharacteristic bleWriteChar3_;
+    BLECharacteristic bleNotifyChar_;
+    bool isConnected_;
     uint8_t buffer_[BUFFER_LENGTH];
 
     void writeBleDebug(uint8_t c);
+    void startAdv(void);
 };
