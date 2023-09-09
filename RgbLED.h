@@ -47,14 +47,14 @@ const led_status LED_STATUSES[8] = {
 class RgbLED
 {
 public:
-  RgbLED(int rPin, int gPin, int bPin);
+  RgbLED(uint8_t rPin, uint8_t gPin, uint8_t bPin);
   ~RgbLED();
 
   void init();
 
   void setStatus(led_statuses status);
   void setStatus(led_status status);
-  void setColor(int r, int g, int b);
+  void setColor(uint8_t r, uint8_t g, uint8_t b);
 
   bool isOn() const;
   void turnOff();
@@ -62,9 +62,9 @@ public:
   void update();
 
 private:
-  int rPin_;
-  int gPin_;
-  int bPin_;
+  uint8_t rPin_;
+  uint8_t gPin_;
+  uint8_t bPin_;
   bool isOn_;
 
   led_status currentStatus_;

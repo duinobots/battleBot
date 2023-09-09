@@ -96,6 +96,7 @@ void DuinoBotsUARTService::bufferTXD(bool enable)
   }
 }
 
+
 err_t DuinoBotsUARTService::begin(void)
 {
   _rx_fifo = new Adafruit_FIFO(1);
@@ -114,27 +115,41 @@ err_t DuinoBotsUARTService::begin(void)
   _txd.setUserDescriptor("TXD");
   VERIFY_STATUS( _txd.begin() );
 
-  // Add RXD Characteristic
-  _rxd.setProperties(CHR_PROPS_WRITE | CHR_PROPS_WRITE_WO_RESP);
-  _rxd.setWriteCallback(DuinoBotsUARTService::bleuart_rxd_cb, true);
+  BLECharacteristic rxChars[3] = { bleWriteChar1_, bleWriteChar2_, bleWriteChar3_ };
+  for (auto& ch : rxChars)
+  {
+    VERIFY_STATUS(initRxCharacteristic(ch, max_mtu));
+    // if (err > 0) return err;
+  }
 
-  // TODO enable encryption when bonding is enabled
-  _rxd.setPermission(SECMODE_NO_ACCESS, SECMODE_OPEN);
-  _rxd.setMaxLen( max_mtu );
-  _rxd.setUserDescriptor("RXD");
-  VERIFY_STATUS(_rxd.begin());
+  // // Add RXD Characteristic
+  // _rxd.setProperties(CHR_PROPS_WRITE | CHR_PROPS_WRITE_WO_RESP);
+  // _rxd.setWriteCallback(DuinoBotsUARTService::bleuart_rxd_cb, true);
+
+  // // TODO enable encryption when bonding is enabled
+  // _rxd.setPermission(SECMODE_NO_ACCESS, SECMODE_OPEN);
+  // _rxd.setMaxLen( max_mtu );
+  // _rxd.setUserDescriptor("RXD");
+  // VERIFY_STATUS(_rxd.begin());
 
   return ERROR_NONE;
+}
+
+err_t DuinoBotsUARTService::initRxCharacteristic(BLECharacteristic& characteristic, uint16_t mtu)
+{
+  characteristic.setProperties(CHR_PROPS_WRITE | CHR_PROPS_WRITE_WO_RESP);
+  characteristic.setWriteCallback(DuinoBotsUARTService::bleuart_rxd_cb, true);
+
+  // TODO enable encryption when bonding is enabled
+  characteristic.setPermission(SECMODE_NO_ACCESS, SECMODE_OPEN);
+  characteristic.setMaxLen( mtu );
+  characteristic.setUserDescriptor("RXD");
+  return characteristic.begin();
 }
 
 bool DuinoBotsUARTService::notifyEnabled(void)
 {
   return this->notifyEnabled(Bluefruit.connHandle());
-}
-
-bool DuinoBotsUARTService::notifyEnabled(uint16_t conn_hdl)
-{
-  return _txd.notifyEnabled(conn_hdl);
 }
 
 /*------------------------------------------------------------------*/
@@ -221,71 +236,9 @@ size_t DuinoBotsUARTService::write(uint16_t conn_hdl, const uint8_t *content, si
   }
 }
 
-bool DuinoBotsUARTService::isConnected()
-{
-  return Bluefruit.connected();
-}
-
-bool DuinoBotsUARTService::writeUART(const char *msg)
-{
-  const uint16_t data_mtu = Bluefruit.Connection(0)->getMtu() - 3;
-  return bleuart_.write(msg, data_mtu);
-}
-
 int DuinoBotsUARTService::available()
 {
   return bleuart_.available();
-}
-
-void DuinoBotsUARTService::reset()
-{
-  return;
-}
-
-uint8_t* DuinoBotsUARTService::getBuffer()
-{
-  uint8_t i = 0;
-
-  while (bleuart_.available())
-  {
-    // uint8_t c = ble_.read();
-    uint8_t ch;
-    ch = (uint8_t) bleuart_.read();
-    Serial.write(ch);
-
-    buffer_[i] = ch;
-    i++;
-
-    if (i >= 20)
-    {
-      break;
-    }
-
-    // if (ADAFRUIT_BLE_DEBUG_MODE)
-    // {
-    //   writeBleDebug(ch);
-    // }
-
-  }
-  Serial.print("DuinoBotsUARTService::getBuffer(), buffer_ -> ");
-  Serial.println((char*)buffer_);
-  Serial.print("sizeof(buffer_) -> ");
-  Serial.println(sizeof(buffer_));
-  return buffer_;
-}
-
-void DuinoBotsUARTService::clearBuffer()
-{
-  for (uint8_t i = 0; i < BUFFER_LENGTH; i++)
-  {
-    buffer_[i] = 0;
-  }
-}
-
-void DuinoBotsUARTService::onConnect()
-{
-  // ble_.setMode(BLUEFRUIT_MODE_DATA);
-  return;
 }
 
 /*

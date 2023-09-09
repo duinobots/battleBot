@@ -1,7 +1,7 @@
 #include "RgbLED.h"
 #include "Arduino.h"
 
-RgbLED::RgbLED(int rPin, int gPin, int bPin)
+RgbLED::RgbLED(uint8_t rPin, uint8_t gPin, uint8_t bPin)
 {
   rPin_ = rPin;
   gPin_ = gPin;
@@ -70,7 +70,7 @@ void RgbLED::setStatus(led_status status)
   }
 }
 
-void RgbLED::setColor(int r, int g, int b)
+void RgbLED::setColor(uint8_t r, uint8_t g, uint8_t b)
 {
   analogWrite(rPin_, r);
   analogWrite(gPin_, g);

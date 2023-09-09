@@ -130,6 +130,8 @@ class DuinoBotsUARTService : public BLEService, public Stream
     notify_callback_t       _notify_cb;
     rx_overflow_callback_t  _overflow_cb;
 
+    err_t initRxCharacteristic(BLECharacteristic& characteristic, uint16_t mtu);
+
     // Static Method for callbacks
     static void bleuart_rxd_cb(uint16_t conn_hdl, BLECharacteristic* chr, uint8_t* data, uint16_t len);
     static void bleuart_txd_cccd_cb(uint16_t conn_hdl, BLECharacteristic* chr, uint16_t value);
